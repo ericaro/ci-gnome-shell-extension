@@ -15,8 +15,8 @@ const Convenience = Me.imports.convenience;
 const _httpSession = new Soup.SessionAsync();
 Soup.Session.prototype.add_feature.call(_httpSession, new Soup.ProxyResolverDefault());
 
-const ErrNet = "😴⇝";
-const ErrHttp = "⇜😴";
+const ErrNet = "⇝?😴";
+const ErrHttp = "⇜?😴";
 const ErrJson = "{😴}";
 const Loading = "…";
 const OKState = "😌";
@@ -45,24 +45,11 @@ const CIndicator=new Lang.Class(
    _isRequesting : false,
 
    _get_url: function(){
-      let url =  this._settings.get_string(URL_SETTING);
-      global.log("url = "+url);
-      // if (url == "" ){
-      //    url = "http://localhost:8080/status";
-      //    this._settings.set_string(URL_SETTING, url);
-      // }
-      return url
+      return this._settings.get_string(URL_SETTING);
    },
 
    _get_refresh_rate: function(){
-      let rr =  this._settings.get_int(REFRESH_RATE_SETTING);
-      global.log("period= "+rr);
-      // if (rr == 30 ){
-      //    rr  = 10;
-      //    global.log("period set to"+rr);
-      //    this._settings.set_int(REFRESH_RATE_SETTING, rr);
-      // }
-      return rr
+      return  this._settings.get_int(REFRESH_RATE_SETTING);
    },
 
    _init: function()
@@ -78,11 +65,7 @@ const CIndicator=new Lang.Class(
       });
       this.actor.add_actor(this.buttonText);
       this.buttonText.set_text(Loading);
-      this.buttonText.remove_style_class_name(StyleClassError);
-      this.buttonText.remove_style_class_name(StyleClassSuccess);
-      this.buttonText.remove_style_class_name(StyleClassFailure);
-      this.buttonText.remove_style_class_name(StyleClassRunning);
-
+      
 
 
       /* Find starting date and */
@@ -117,14 +100,15 @@ const CIndicator=new Lang.Class(
          this.buttonText.remove_style_class_name(StyleClassError);
          this.buttonText.remove_style_class_name(StyleClassSuccess);
          this.buttonText.remove_style_class_name(StyleClassFailure);
+         this.buttonText.remove_style_class_name(StyleClassRunning);
 
          let url = this._get_url();
-         global.log("refreshing ci status: "+url);
          let request = Soup.Message.new('GET', url);
          if( request ) {
             _httpSession.queue_message(request, Lang.bind(this, this._callback));
          }else{
                //global.log("invalid request");
+               global.log("refreshing ci status: Invalid URL: "+url);
                this.buttonText.set_text(ErrNet);
                this.buttonText.add_style_class_name(StyleClassError);
                this._isRequesting = false;
@@ -136,10 +120,10 @@ const CIndicator=new Lang.Class(
    {
       this._isRequesting = false;
       if( message.status_code!==200 )  {
-                  global.log("http error:", message.status_code);
-                  this.buttonText.set_text(ErrHttp);
-               this.buttonText.add_style_class_name(StyleClassError);
-                  return;
+         global.log("refreshing ci status: Http Error: "+message.status_code+"  "+ message.status_code);
+         this.buttonText.set_text(ErrHttp);
+         this.buttonText.add_style_class_name(StyleClassError);
+         return;
       } else { 
          // parse json
          try {
@@ -156,7 +140,7 @@ const CIndicator=new Lang.Class(
                this.buttonText.add_style_class_name(StyleClassFailure);
             }
          } catch( e ) {
-            global.log(e)
+            global.log("refreshing ci status: invalid response JSON Error: "+e);
             this.buttonText.set_text(ErrJson);
             this.buttonText.add_style_class_name(StyleClassError);
          }
@@ -166,9 +150,7 @@ const CIndicator=new Lang.Class(
    {
 
       let refresh_rate = this._get_refresh_rate();
-      global.log("update refresh rate to: "+ refresh_rate);
       if(this._refresh_rate!=refresh_rate) {
-         global.log("rescheduling ");
          this._refresh_rate=refresh_rate;
          this._change_timeoutloop=true;
       }
