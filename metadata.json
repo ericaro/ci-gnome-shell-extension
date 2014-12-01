@@ -3,6 +3,7 @@
     "3.12.2"
   ],
   "uuid": "ci@e.ericaro.net",
+  "settings-schema": "org.gnome.shell.extensions.ci", 
   "name": "CI Status",
   "description": "simple display for the CI status"
 }

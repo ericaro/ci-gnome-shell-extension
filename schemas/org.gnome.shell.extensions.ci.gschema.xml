@@ -1,11 +1,18 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <schemalist>
-  <schema path="/net/ericaro/ci/" id="net.ericaro.ci">
+  <schema path="/org/gnome/shell/extensions/ci/" id="org.gnome.shell.extensions.ci">
     <key name="url" type="s">
       <default>'http://localhost:8080/status'</default>
       <summary>URL to the CI server</summary>
       <description>
         the address to get the CI server status: default to : 'http://localhost:8080/status'
+      </description>
+    </key>
+    <key name="period" type="i">
+      <default>30</default>
+      <summary>Refresh period (in s)</summary>
+      <description>
+        Duration between two request to CI server
       </description>
     </key>
   </schema>

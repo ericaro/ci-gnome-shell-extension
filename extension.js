@@ -28,7 +28,8 @@ const StyleClassFailure = "failure";
 const StyleClassError = "error";
 const StyleClassRunning = "running";
 
-const URL_SETTING = "url"
+const URL_SETTING = "url";
+const REFRESH_RATE_SETTING = "period";
 
 let _status_indicator_object=null;
 
@@ -45,17 +46,30 @@ const CIndicator=new Lang.Class(
 
    _get_url: function(){
       let url =  this._settings.get_string(URL_SETTING);
-      if (url == "" ){
-         url = "http://localhost:8080/status";
-         this._settings.set_string(URL_SETTING, url);
-      }
+      global.log("url = "+url);
+      // if (url == "" ){
+      //    url = "http://localhost:8080/status";
+      //    this._settings.set_string(URL_SETTING, url);
+      // }
       return url
+   },
+
+   _get_refresh_rate: function(){
+      let rr =  this._settings.get_int(REFRESH_RATE_SETTING);
+      global.log("period= "+rr);
+      // if (rr == 30 ){
+      //    rr  = 10;
+      //    global.log("period set to"+rr);
+      //    this._settings.set_int(REFRESH_RATE_SETTING, rr);
+      // }
+      return rr
    },
 
    _init: function()
    {
       this.parent(0.0,"CI Status",false);
-      this._settings = Convenience.getSettings("net.ericaro.ci");
+      //this._settings = Convenience.getSettings();
+      this._settings = Convenience.getSettings();
       //this._settings = Convenience.getSettings();
 
       this.buttonText=new St.Label({
@@ -69,14 +83,15 @@ const CIndicator=new Lang.Class(
       this.buttonText.remove_style_class_name(StyleClassFailure);
       this.buttonText.remove_style_class_name(StyleClassRunning);
 
+
+
       /* Find starting date and */
 
       
       this.actor.connect('button-press-event', Lang.bind(this, this._refresh));
       this.actor.connect('key-press-event', Lang.bind(this, this._refresh));
 
-      this._set_refresh_rate(10)
-      this._change_timeoutloop=true;
+      this._update_refresh_rate();
       this._timeout=null;
       this._refresh();
    },
@@ -84,6 +99,7 @@ const CIndicator=new Lang.Class(
    _refresh: function()
    {
       this._do_update_status();
+      this._update_refresh_rate();
       if(this._change_timeoutloop) {
          this._remove_timeout();
          this._timeout=Mainloop.timeout_add_seconds(this._refresh_rate,Lang.bind(this, this._refresh));
@@ -146,9 +162,13 @@ const CIndicator=new Lang.Class(
          }
       }
    },
-   _set_refresh_rate: function(refresh_rate)
+   _update_refresh_rate: function()
    {
+
+      let refresh_rate = this._get_refresh_rate();
+      global.log("update refresh rate to: "+ refresh_rate);
       if(this._refresh_rate!=refresh_rate) {
+         global.log("rescheduling ");
          this._refresh_rate=refresh_rate;
          this._change_timeoutloop=true;
       }
