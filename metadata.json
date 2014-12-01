@@ -1,0 +1,8 @@
+{
+  "shell-version": [
+    "3.12.2"
+  ],
+  "uuid": "ci@e.ericaro.net",
+  "name": "CI Status",
+  "description": "simple display for the CI status"
+}

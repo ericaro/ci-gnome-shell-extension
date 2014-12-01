@@ -1,0 +1,22 @@
+
+#ci-indicator-buttonText {
+   text-align: center;
+}
+
+.success {
+	color : green;
+   font-style: bold;
+}
+.failure {
+	color : #d64937;
+   font-style: bold;
+
+}
+
+.running {
+   font-style: italic;
+}
+
+.error {
+   font-style: italic;
+}
